@@ -568,11 +568,10 @@ function openIndexedDB(dbName, dbVersion) {
 }
 
 // Module.locateFile() routes asset downloads to either gzip compressed or uncompressed assets.
-Module.locateFile = function(name) {
-  // Always load from the same folder as index.html
-  return name;
-};
 
+Module.locateFile = function(name) {
+  return window.location.pathname.replace(/\/[^/]*$/, '/') + name;
+};
 
 // see site/source/docs/api_reference/module.rst for details
 Module.getPreloadedPackage = function(remotePackageName, remotePackageSize) {
@@ -1198,5 +1197,4 @@ $(document).ready(function() {
 		withIndexedDB(null);
 	});
 });
-
 
