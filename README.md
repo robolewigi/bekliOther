@@ -1,4 +1,5 @@
 ### nationOnDust
+https://robolewigi.github.io/bekliOther/nodHtml/
 
 RTS sandbox world map
 
@@ -12,6 +13,7 @@ Development Versions https://drive.google.com/drive/folders/1UMftv8atENR_G23vBfW
 </p>
 
 ### elementalSpeedway
+https://robolewigi.github.io/bekliOther/isometricRunwayHtml/
 
 a sandbox where you can walk attack and allocate points
 WASD, Mouse and left button,Enter
