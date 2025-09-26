@@ -569,22 +569,10 @@ function openIndexedDB(dbName, dbVersion) {
 
 // Module.locateFile() routes asset downloads to either gzip compressed or uncompressed assets.
 Module.locateFile = function(name) {
-	var serveGzipped = serveCompressedAssets;
-	// When serving from file:// URLs, don't read .gz compressed files, because these files can't be transparently uncompressed.
-	var isFileProtocol = name.indexOf('file://') != -1 || location.protocol.indexOf('file') != -1;
-	if (isFileProtocol) {
-		if (!Module['shownFileProtocolWarning']) {
-			showWarningRibbon('Attempting to load the page via the "file://" protocol. This only works in Firefox, and even there only when not using compression, so attempting to load uncompressed assets. Please host the page on a web server and visit it via a "http://" URL.');
-			Module['shownFileProtocolWarning'] = true;
-		}
-		serveGzipped = false;
-	}
-
-	// uncompressing very large gzip files may slow down startup times.
-//	if (!dataFileIsGzipCompressed && name.split('.').slice(-1)[0] == 'data') serveGzipped = false;
-
-	return serveGzipped ? (name + 'gz') : name;
+  // Always load from the same folder as index.html
+  return name;
 };
+
 
 // see site/source/docs/api_reference/module.rst for details
 Module.getPreloadedPackage = function(remotePackageName, remotePackageSize) {
@@ -1210,4 +1198,5 @@ $(document).ready(function() {
 		withIndexedDB(null);
 	});
 });
+
 
