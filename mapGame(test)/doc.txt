@@ -1,0 +1,98 @@
+#!july 2026
+import pygame
+import sys
+
+class Variables:
+ def __init__(self):
+  self.width = 700
+  self.height = 500
+  self.caption = "Simple Pygame Window"
+  self.fps = 60
+  self.mapFile = "map.png" 
+  self.run= 0
+  self.mapImage= None
+  self.originalMap = None
+  self.mapSize=[0,0]
+  self.mapLoc=[[]]
+  self.zoomLevel= 1.0
+  self.zoomSpeed= 0.1
+  self.mapX=0
+  self.mapY=0
+  self.moveSpeed=5
+v = Variables()
+
+def createMap():
+ try:
+  loaded_map = pygame.image.load(v.mapFile).convert()
+  orig_w = loaded_map.get_width()
+  orig_h = loaded_map.get_height()
+  aspect_ratio = orig_h / orig_w
+  target_height = int(v.width * aspect_ratio)
+  v.originalMap = pygame.transform.scale(loaded_map, (v.width, target_height))
+  v.mapImage = v.originalMap.copy()
+  v.mapSize = [v.mapImage.get_width(), v.mapImage.get_height()]
+ except FileNotFoundError:
+  print(f"Error: Could not find {v.mapFile}")
+  sys.exit()
+
+def controls(event):
+ if event.type == pygame.MOUSEBUTTONDOWN:
+  if event.button == 1:  # 1 is the Left Mouse Button
+   mouse_x, mouse_y = event.pos
+   
+   relative_x = mouse_x - v.mapX
+   relative_y = mouse_y - v.mapY
+   if 0 <= relative_x <= v.mapSize[0] and 0 <= relative_y <= v.mapSize[1]:
+    pct_x = (relative_x / v.mapSize[0]) * 100
+    pct_y = (relative_y / v.mapSize[1]) * 100
+    
+    print(f"Map Clicked at: X: {pct_x:.2f}%, Y: {pct_y:.2f}%")
+   else:
+    print("Clicked outside the map boundaries.")
+
+  elif event.button == 4:  
+   v.zoomLevel += v.zoomSpeed
+   updateZoom()
+   
+  elif event.button == 5:  
+   if v.zoomLevel > 0.2:  # Minimum 20% size limit
+    v.zoomLevel -= v.zoomSpeed
+    updateZoom()
+
+def handleMovement():
+ keys = pygame.key.get_pressed()
+ if keys[pygame.K_w]:
+  v.mapY += v.moveSpeed  # Move map down = Camera looks up
+ if keys[pygame.K_s]:
+  v.mapY -= v.moveSpeed  # Move map up = Camera looks down
+ if keys[pygame.K_a]:
+  v.mapX += v.moveSpeed  # Move map right = Camera looks left
+ if keys[pygame.K_d]:
+  v.mapX -= v.moveSpeed
+
+def updateZoom():
+ new_w = int(v.originalMap.get_width() * v.zoomLevel)
+ new_h = int(v.originalMap.get_height() * v.zoomLevel)
+ 
+ v.mapImage = pygame.transform.scale(v.originalMap, (new_w, new_h))
+ v.mapSize = [new_w, new_h]
+
+pygame.init()
+screen = pygame.display.set_mode((v.width, v.height))
+pygame.display.set_caption(v.caption)
+clock = pygame.time.Clock()
+createMap()
+while v.run!=2:
+ for event in pygame.event.get():
+  if event.type == pygame.QUIT:
+   v.run = 2
+  controls(event)
+  
+ handleMovement()
+ screen.fill((0,0,0))  # Fill background with white 
+ screen.blit(v.mapImage, (v.mapX, v.mapY))
+ pygame.display.flip()
+ clock.tick(v.fps)
+ 
+pygame.quit()
+sys.exit()
