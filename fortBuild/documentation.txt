@@ -1,0 +1,127 @@
+#!jun 2026
+import pygame
+import random
+
+class variables():
+ def __init__(self):
+  self.width= 700
+  self.height= 500
+  self.run= 0
+v= variables()
+
+class world():
+ def __init__(self):
+  self.location=[0,0]
+  self.gridX=10
+  self.gridY=10
+  self.resources=[] #0-None 1-wheat 2-wood 3-metal
+w= world()
+
+class player():
+ def __init__(self):
+  self.wood= 10
+  self.metal= 10
+  self.wheat= 10
+  self.improvements=[] #0-None 1-command 2-tradePost 3-walls 4-tower
+p= player()
+
+def createWorld():
+ for i in range(w.gridY*w.gridX):
+  p.improvements.append(0)
+  rand = random.random()
+  if rand>0.5:
+   w.resources.append(0)
+  elif rand>0.3:
+   w.resources.append(1)
+  elif rand>0.1:
+   w.resources.append(2)
+  elif rand>0.05:
+   w.resources.append(3)
+  else:
+   w.resources.append(4)
+
+
+pygame.init() 
+screen = pygame.display.set_mode((v.width, v.height))
+pygame.display.set_caption('cityBuilder')
+clock = pygame.time.Clock()
+
+# Set up a font (None uses the default system font, 24 is the font size)
+font = pygame.font.Font(None, 24)
+
+def createSquare(pos= [88,44], col=[0,144,0], siz=44):
+ pygame.draw.rect(screen, tuple(col), pygame.Rect(pos[0], pos[1],  siz, siz))
+
+def drawMenuText():
+ menu_items = [
+  "1- command",
+  "2- tradePost",
+  "3- walls",
+  "4- tower",
+  f"wheat= {p.wheat}",
+  f"wood= {p.wood}",
+  f"metal= {p.metal}",
+ ]
+ 
+ start_x = 480  
+ start_y = 40  
+ line_spacing = 30
+ 
+ for index, text in enumerate(menu_items):
+  # render(text, antialias, color)
+  text_surface = font.render(text, True, (255, 255, 255)) 
+  screen.blit(text_surface, (start_x, start_y + (index * line_spacing)))
+
+def keyEvents(event):
+ if event.type == pygame.KEYDOWN:
+  if event.key == pygame.K_a: # Move Left
+   w.location[0]= max(0, w.location[0]-1)
+  elif event.key == pygame.K_d: # Move Right
+   w.location[0]= min(w.gridX-1, w.location[0]+1)
+  elif event.key == pygame.K_w: # Move Up
+   w.location[1]= max(0, w.location[1]-1)
+  elif event.key == pygame.K_s: # Move Down
+   w.location[1]= min(w.gridY-1, w.location[1]+1)
+  elif event.key == pygame.K_SPACE:
+   pass
+
+createWorld()
+while v.run!= 2:
+ clock.tick(60)
+ for event in pygame.event.get():
+  if event.type == pygame.QUIT:
+   v.run = 2
+  keyEvents(event)
+
+ screen.fill((0, 0, 0)) 
+
+ createSquare([37+ w.location[0]*40, 37+ w.location[1]*40], [166,166,166], siz=40)
+
+ for y in range(w.gridY):
+  for x in range(w.gridX):
+   col= [0,144,0]
+   is_border = x==0 or y==0 or x== w.gridX-1 or y== w.gridY-1
+   if is_border:
+    col= [0,0,0]
+   else:
+    newNum= y* w.gridX+ x
+    if w.resources[newNum]==1:
+     col= [111,111,0]
+    if w.resources[newNum]==2:
+     col= [111,44,0]
+    if w.resources[newNum]==3:
+     col= [44,66,88]
+   createSquare([x*40+40, y*40+40],col, siz=34)
+
+   if not is_border:
+    newNum = y * w.gridX + x
+    imp_value = str(p.improvements[newNum])
+    text_surface = font.render(imp_value, True, (255, 255, 255))
+    
+    screen.blit(text_surface, (x * 40 + 53, y * 40 + 49))
+
+ drawMenuText()
+
+ pygame.display.flip()
+
+pygame.quit()
